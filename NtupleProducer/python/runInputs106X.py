@@ -19,7 +19,8 @@ process.VertexProducer.l1TracksInputTag = cms.InputTag("TTTracksFromTracklet", "
 
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/eos/cms/store/mc/PhaseIITDRSpring19DR/TTbar_14TeV_TuneCP5_Pythia8/GEN-SIM-DIGI-RAW/NoPU_106X_upgrade2023_realistic_v3-v1/230000/47DE7390-EC0F-624B-9440-0791A85D1F97.root'),
+    fileNames = cms.untracked.vstring(
+        'file:/store/mc/PhaseIITDRSpring19DR/GluGluHToTauTau_M125_14TeV_powheg_pythia8_TuneCP5/GEN-SIM-DIGI-RAW/NoPU_106X_upgrade2023_realistic_v3-v2/130000/BCF23446-E525-A24C-991C-BB61F947AFD7.root'),
     #fileNames = cms.untracked.vstring('/store/mc/PhaseIITDRSpring19DR/TTbar_14TeV_TuneCP5_Pythia8/GEN-SIM-DIGI-RAW/NoPU_106X_upgrade2023_realistic_v3-v1/230000/47DE7390-EC0F-624B-9440-0791A85D1F97.root'),
     inputCommands = cms.untracked.vstring("keep *", 
         "drop l1tHGCalTowerMapBXVector_hgcalTriggerPrimitiveDigiProducer_towerMap_HLT",
@@ -31,7 +32,7 @@ process.source = cms.Source("PoolSource",
         "drop l1tEMTFTrack2016s_simEmtfDigis__HLT")
 
 )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(25))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.p = cms.Path(

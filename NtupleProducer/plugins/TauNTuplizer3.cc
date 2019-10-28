@@ -6,7 +6,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
 
-#include "DataFormats/Phase2L1ParticleFlow/interface/PFTau.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkEGTauParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
@@ -30,10 +30,10 @@
 #include <TTree.h>
 #include <TLorentzVector.h>
 
-class TauNTuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one::WatchRuns>  {
+class TauNTuplizer3 : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one::WatchRuns>  {
     public:
-        explicit TauNTuplizer(const edm::ParameterSet&);
-        ~TauNTuplizer();
+        explicit TauNTuplizer3(const edm::ParameterSet&);
+        ~TauNTuplizer3();
 
     private:
         virtual void beginJob() override;
@@ -41,7 +41,7 @@ class TauNTuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::
         virtual void beginRun(edm::Run const&, edm::EventSetup const& iSetup) override {}
         virtual void endRun(edm::Run const&, edm::EventSetup const& iSetup) override { } // framework wants this to be implemented
 
-        edm::EDGetTokenT<std::vector<l1t::PFTau>> L1PFTaus_;
+        edm::EDGetTokenT<std::vector<l1t::L1TkEGTauParticle>> L1PFTaus_;
         edm::EDGetTokenT<std::vector<reco::GenParticle>> genparticles_;
         float dr2Max_, minPtRatio_;
         TTree *tree_;
@@ -89,6 +89,7 @@ class TauNTuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::
 	      pt1  = iVec.Pt(); 
 	      eta1 = iVec.Eta(); 
 	      phi1 = iVec.Phi();
+	      //if(iDR < 0) std::cout << "--- " << iDR << " -- " << dr1 << " -- " << fabs(iDR) << " -- " << fabs(dr1) << std::endl;
 	    } else if(iVec.Pt() > pt2) { 
 	      dr2  = iDR;
 	      pt2  = iVec.Pt(); 
@@ -117,8 +118,8 @@ class TauNTuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::
  
 };
 
-TauNTuplizer::TauNTuplizer(const edm::ParameterSet& iConfig) :
-  L1PFTaus_    (consumes<std::vector<l1t::PFTau>>(iConfig.getParameter<edm::InputTag>("src"))),
+TauNTuplizer3::TauNTuplizer3(const edm::ParameterSet& iConfig) :
+  L1PFTaus_    (consumes<std::vector<l1t::L1TkEGTauParticle>>(iConfig.getParameter<edm::InputTag>("src"))),
   genparticles_(consumes<std::vector<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParticles"))),
   dr2Max_(std::pow(iConfig.getParameter<double>("drMax"), 2)),
   minPtRatio_(float(iConfig.getParameter<double>("minRecoPtOverGenPt"))) {
@@ -138,13 +139,13 @@ TauNTuplizer::TauNTuplizer(const edm::ParameterSet& iConfig) :
     }
 }
 
-TauNTuplizer::~TauNTuplizer() { }
-void  TauNTuplizer::beginJob() {
+TauNTuplizer3::~TauNTuplizer3() { }
+void  TauNTuplizer3::beginJob() {
     mc_.makeBranches(tree_);
     for (auto & v : reco_) v.makeBranch(tree_);
     eventcount_=0;
 }
-void TauNTuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void TauNTuplizer3::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     run_  = iEvent.id().run();
     lumi_ = iEvent.id().luminosityBlock();
     event_ = iEvent.id().event();
@@ -153,13 +154,13 @@ void TauNTuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     edm::Handle<std::vector<reco::GenParticle>> genparticles;
     iEvent.getByToken(genparticles_, genparticles);
 
-    edm::Handle<  l1t::PFTauCollection > l1PFTaus;
-    //try { 
-    iEvent.getByToken( L1PFTaus_, l1PFTaus);
-      //} catch(...) { 
-      //  return;
-      //}
-    l1t::PFTau dummy;
+    edm::Handle<  l1t::L1TkEGTauParticleCollection > l1PFTaus;
+    try { 
+      iEvent.getByToken( L1PFTaus_, l1PFTaus);
+    } catch(...) { 
+      return;
+    }
+    l1t::L1TkEGTauParticle dummy;
     std::vector<int> matchedGen;
     std::vector<int> matchedTau;
     std::vector<TLorentzVector> taus;
@@ -236,4 +237,4 @@ void TauNTuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 //define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(TauNTuplizer);
+DEFINE_FWK_MODULE(TauNTuplizer3);
